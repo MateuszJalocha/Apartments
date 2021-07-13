@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # Get links to scrape
     otodom_pages = otodom_scraper.get_pages()
-    otodom_offers = otodom_scraper.get_offers(pages=otodom_pages[0:3], split_size=100)
+    otodom_offers = otodom_scraper.get_offers(pages=otodom_pages, split_size=100)
     to_scrape = database_manipulation.push_to_database_links(activeLinks = otodom_offers, page_name = "Otodom")
 
     #Push to scrape links to database
