@@ -115,15 +115,14 @@ class ScrapingOtodom(Scraper):
             # Read website, encode and create HTML parser
             soup_pages = self.enterPage_parser(link)
 
-            # Extract pages numbers and links
-            pages_names, pages_newest_links = self.extract_links_idClass(isId=False,
-                                                                         to_find='pager',
-                                                                         soup=soup_pages, replace=False)
-
-            pages_range = self.prepare_range(pages_names)
+            # Extract max page number
+            res = soup_pages.findAll('script')
+            lengths = [len(str(el)) for el in res]
+            json_object = json.loads(res[lengths.index(max(lengths))].contents[0])
+            max_page_num = json_object["props"]["pageProps"]["tracking"]['listing']['page_count']
 
             # Create all pages links
-            all_pages_links = [link + '?page=' + str(page) for page in pages_range]
+            all_pages_links = [link + '?page=' + str(page) for page in range(1, max_page_num + 1)]
 
         except:
             all_pages_links = link
@@ -178,9 +177,7 @@ class ScrapingOtodom(Scraper):
             # Read website, encode and create HTML parser
             soup_offers = self.enterPage_parser(page_link)
 
-            properties_links = [art["data-url"] for art in soup_offers.select("article") if art.has_attr("data-url")]
-
-            all_properties_links = properties_links
+            all_properties_links = [self.page_name + a["href"] for a in soup_offers.find_all('a', {"data-cy": "listing-item-link"}, href=True)]
 
         except:
             all_properties_links = page_link
@@ -477,15 +474,15 @@ class ScrapingOtodom(Scraper):
         try:
             # Title and subtitle
             title = self.extract_information(self.soup_find_information(soup=soup_details,
-                                                              find_attr=['h1', 'class',
-                                                                         'css-46s0sq eu6swcv18']))
+                                                              find_attr=['h1', 'data-cy',
+                                                                         'adPageAdTitle']))
 
             subtitle = self.extract_information(self.soup_find_information(soup=soup_details,
-                                                                 find_attr=['a', 'class',
-                                                                            'css-1qz7z11 e1nbpvi61']))
+                                                                 find_attr=['a', 'href',
+                                                                            '#map']))
             price = self.extract_information(self.soup_find_information(soup=soup_details,
-                                                              find_attr=['strong', 'class',
-                                                                         'css-srd1q3 eu6swcv17']))
+                                                              find_attr=['strong', 'data-cy',
+                                                                         'adPageHeaderPrice']))
 
             # Details and description (h2)
             details = self.extract_information_otodom(self.soup_find_information(soup=soup_details,

@@ -32,11 +32,11 @@ if __name__ == "__main__":
                                                  table_name_process_stage = "process_stage", split_size = 1000)
 
     # ===Otodom===
-    otodom_scraper = ScrapingOtodom(page='https://www.otodom.pl/wynajem/mieszkanie/', page_name='https://www.otodom.pl', max_threads=20)
+    otodom_scraper = ScrapingOtodom(page='https://www.otodom.pl/pl/oferty/wynajem/mieszkanie/', page_name='https://www.otodom.pl', max_threads=20)
 
     # Get links to scrape
     otodom_pages = otodom_scraper.get_pages()
-    otodom_offers = otodom_scraper.get_offers(pages=otodom_pages, split_size=100)
+    otodom_offers = otodom_scraper.get_offers(pages=otodom_pages[0:3], split_size=100)
     to_scrape = database_manipulation.push_to_database_links(activeLinks = otodom_offers, page_name = "Otodom")
 
     #Push to scrape links to database

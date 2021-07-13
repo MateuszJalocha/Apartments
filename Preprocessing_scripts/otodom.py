@@ -14,6 +14,7 @@ import os
 from datetime import datetime
 from textwrap import wrap
 from langdetect import detect
+
 class Preprocessing_Otodom:
     """
         A class used to preprocess offers information from Otodom.pl.
