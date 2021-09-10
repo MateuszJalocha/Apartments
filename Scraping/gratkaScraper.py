@@ -138,14 +138,12 @@ class ScrapingGratka(Scraper):
     def get_details(self, split_size: int, offers: List = []) -> None:
         """The method called up by the user to download all details about apartments. Results are saved to
         number_of_links/split.csv files
-
         Parameters
         ----------
         split_size: int
            value divided by total number of links it is used to create splits to relieve RAM memory
         offers: list, optional
             for which offers links the properties details are to be scraped (default for all)
-
         """
 
         # Verify whether user want to specify specific pages
@@ -186,12 +184,10 @@ class ScrapingGratka(Scraper):
     # Remove styling substings
     def remove_styling(self, info_list: List[str]) -> List[str]:
         """ Remove styling substings (eg. .css.*?}, @media.*?})
-
         Parameters
         ----------
         info_list: list
             information from offer (eg. details, additional info)
-
         Returns
         ------
         list
@@ -207,14 +203,12 @@ class ScrapingGratka(Scraper):
     def extract_information_gratka(self, find_in: List[str], is_description: bool = False) -> Union[List[str], str]:
         """Extract the information from the str (soup.find obj).
          If it is a description replace the html tags with newline characters, otherwise remove the empty strings from the list.
-
         Parameters
         ----------
         find_in: list
             object where used to find information
         is_description: boolean, (default = False)
             determines whether it is a description (in description replace html tags with new line tags)
-
         Returns
         ------
         list or str
@@ -247,16 +241,24 @@ class ScrapingGratka(Scraper):
 
         return None
 
+    def extract_li_gratka(self, find_in: List[str]) -> Dict:
+      lis = []
+        
+      for li in find_in.findAll("li"):
+          info = [desc.strip() for desc in li.descendants if type(desc) == NavigableString and desc.strip() != '']
+          if len(info) > 0:
+            lis.append({'Title': info[0], 'Desc': ' '.join(info[1:])})
+
+      return list(lis)
+
     # Scraping details from offer
     def scraping_offers_details(self, link: str) -> Union[DefaultDict[str,str], str]:
         """Try to connect with offer link, if it is not possible save link to global list.
          Also try to scrape information from json object
-
         Parameters
         ----------
         link: str
            link to offer
-
         Returns
         ------
         defaultdict or str
@@ -281,13 +283,12 @@ class ScrapingGratka(Scraper):
                                                                          'priceInfo__value']))[1]
 
             # Details
-            details = self.extract_information_gratka(
-                soup_details.find('ul', {'class': 'parameters__rolled'}))
+            details = self.extract_li_gratka(
+                soup_details.find('ul', {'class': 'parameters__singleParameters'}))
 
             # Description
-            description = self.extract_information(self.soup_find_information(soup=soup_details,
-                                                                    find_attr=['div', 'class',
-                                                                               'description__rolled ql-container']))
+            description = self.soup_find_information(soup=soup_details, find_attr=['div', 'class',
+                                                                               'description__rolled ql-container']).text
 
             # Information in json
             try:
@@ -313,12 +314,10 @@ class ScrapingGratka(Scraper):
     # Scrape missed details links
     def missed_details_func(self, links: List[str]) -> Tuple[List[str], List[str]]:
         """Scrape missed details links
-
         Parameters
         ----------
         links: list
             missing links
-
         Returns
         ------
         list, list
