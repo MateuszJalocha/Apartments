@@ -22,6 +22,7 @@ import urllib
 from sqlalchemy import create_engine
 from typing import Tuple, List, Callable, DefaultDict, Union
 import numpy as np
+import math
 
 #Sleep while scraping to to avoid blocking
 def scrape_with_sleeping(otodom_scraper: Callable, otodom_links: List[str], time_split: int, time_sleep: int, split_size: int, offers: bool) -> Union[List[str], pd.DataFrame]:
